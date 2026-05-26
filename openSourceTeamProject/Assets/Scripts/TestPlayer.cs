@@ -14,6 +14,10 @@ public class TestPlayer : MonoBehaviour
     public float coyoteTime = 0.12f;
     public float jumpBufferTime = 0.12f;
 
+    [Header("중력 가속도 설정")]
+    public float fallMultiplier = 4f;
+    public float lowJumpMultiplier = 2.5f;
+
     private Rigidbody2D rb;
     private float moveInput;
     private float coyoteCounter;
@@ -51,11 +55,27 @@ public class TestPlayer : MonoBehaviour
             jumpBufferCounter = 0f;
             coyoteCounter = 0f;
         }
+
+        ModifyGravity();
     }
 
     void FixedUpdate()
     {
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+    }
+
+    void ModifyGravity()
+    {
+        // 점프 후 최고점 도달했을때 
+        if (rb.linearVelocity.y < 0) 
+        {
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+        }
+        // 위로 상승 & 스페이스 똈을때 
+        else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space)) 
+        {
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+        }
     }
 
     void OnDrawGizmosSelected()
@@ -64,4 +84,6 @@ public class TestPlayer : MonoBehaviour
 
         Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
     }
+
+    
 }
