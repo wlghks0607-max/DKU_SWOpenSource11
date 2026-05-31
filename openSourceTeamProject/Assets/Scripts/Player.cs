@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     public GameObject gameOverUI;
 
     public float moveSpeed = 5f;
+    public float runSpeed = 10f;
     public float jumpPower = 12f;
 
     [Header("바닥 체크")]
@@ -27,6 +28,7 @@ public class Player : MonoBehaviour
     private Animator anim;
 
     private float moveInput;
+    private float currentSpeed;
     private float coyoteCounter;
     private float jumpBufferCounter;
     private Vector3 originalScale;
