@@ -3,6 +3,7 @@ using UnityEngine;
 public class TestPlayer : MonoBehaviour
 {
     public float moveSpeed = 5f;
+    public float runSpeed = 10f;
     public float jumpPower = 12f;
 
     [Header("바닥 체크")]
@@ -20,6 +21,7 @@ public class TestPlayer : MonoBehaviour
 
     private Rigidbody2D rb;
     private float moveInput;
+    private float currentSpeed;
     private float coyoteCounter;
     private float jumpBufferCounter;
 
@@ -31,6 +33,15 @@ public class TestPlayer : MonoBehaviour
     void Update()
     {
         moveInput = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            currentSpeed = runSpeed;
+        }
+        else
+        {
+            currentSpeed = moveSpeed;
+        }
 
         bool isGrounded = Physics2D.OverlapBox(
             groundCheck.position,
@@ -61,7 +72,7 @@ public class TestPlayer : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(moveInput * currentSpeed, rb.linearVelocity.y);
     }
 
     void ModifyGravity()
