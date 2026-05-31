@@ -38,6 +38,7 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         originalScale = transform.localScale;
+        currentSpeed = moveSpeed;
 
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
@@ -54,6 +55,11 @@ public class Player : MonoBehaviour
         }
 
         moveInput = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetKey(KeyCode.LeftShift))
+            currentSpeed = runSpeed;
+        else
+            currentSpeed = moveSpeed;
 
         anim.SetBool("isRun", moveInput != 0);
 
@@ -93,7 +99,7 @@ public class Player : MonoBehaviour
     {
         if (isDead) return;
 
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(moveInput * currentSpeed, rb.linearVelocity.y);
     }
 
     public void Die()
