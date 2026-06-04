@@ -1,11 +1,14 @@
 using UnityEngine;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
-    public int hp = 4;
-    private bool isDead = false;
 
+
+    public TMP_Text hpText;
     public GameObject gameOverUI;
+
+    private Vector3 initialPosition;
 
     public float moveSpeed = 5f;
     public float runSpeed = 10f;
@@ -23,6 +26,10 @@ public class Player : MonoBehaviour
     [Header("중력 가속도 설정")]
     public float fallMultiplier = 4f;
     public float lowJumpMultiplier = 2.5f;
+
+    [Header("목숨& 부활 설정")]
+    public int hp = 4;
+    private bool isDead = false;
 
     private Rigidbody2D rb;
     private Animator anim;
@@ -42,6 +49,9 @@ public class Player : MonoBehaviour
 
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
+        
+        LifeCount();
+        initialPosition = transform.position;
     }
 
     void Update()
@@ -106,19 +116,38 @@ public class Player : MonoBehaviour
     {
         if (isDead) return;
 
-        isDead = true;
-        moveInput = 0f;
+        hp -= 1;
+        LifeCount();
+        
+        if (hp > 0){
+            transform.position = initialPosition;
+            rb.linearVelocity = Vector2.zero;
+        }        
+        else 
+        {
+            isDead = true;
+            moveInput = 0f;
 
-        anim.SetBool("isRun", false);
-        anim.SetTrigger("Die");
+            anim.SetBool("isRun", false);
+            anim.SetTrigger("Die");
 
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
 
-        if (gameOverUI != null)
-            gameOverUI.SetActive(true);
+            if (gameOverUI != null)
+                gameOverUI.SetActive(true);
 
-        Debug.Log("Player Dead");
+            Debug.Log("Player Dead");
+        }
+        
+    }
+
+    void LifeCount() 
+    {
+        if (hpText != null)
+        {
+            hpText.text = "LIFE : " + hp;
+        }
     }
 
     void ModifyGravity()
