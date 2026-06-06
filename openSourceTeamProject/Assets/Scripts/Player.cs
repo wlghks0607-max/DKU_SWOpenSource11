@@ -9,10 +9,13 @@ public class Player : MonoBehaviour
     public GameObject gameOverUI;
 
     private Vector3 initialPosition;
+    private SpriteRenderer sp;
+    private Rigidbody2D rigid;
 
     public float moveSpeed = 5f;
     public float runSpeed = 10f;
     public float jumpPower = 12f;
+    private bool isKnockback = false;
 
     [Header("바닥 체크")]
     public Transform groundCheck;
@@ -39,11 +42,14 @@ public class Player : MonoBehaviour
     private float coyoteCounter;
     private float jumpBufferCounter;
     private Vector3 originalScale;
+    private bool isDamaged = false;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        rigid = GetComponent<Rigidbody2D>();
+        sp = GetComponent<SpriteRenderer>();
         originalScale = transform.localScale;
         currentSpeed = moveSpeed;
 
@@ -108,6 +114,7 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         if (isDead) return;
+        if (isKnockback) return;
 
         rb.linearVelocity = new Vector2(moveInput * currentSpeed, rb.linearVelocity.y);
     }
@@ -146,7 +153,7 @@ public class Player : MonoBehaviour
     {
         if (hpText != null)
         {
-            hpText.text = "LIFE : " + hp;
+            hpText.text = ""+hp;
         }
     }
 
@@ -167,5 +174,63 @@ public class Player : MonoBehaviour
         if (groundCheck == null) return;
 
         Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Enemy")
+        {
+          OnDamaged(collision.transform.position);
+        }
+    }
+
+    void OnDamaged(Vector2 targetPos)
+    {
+        if (isDead) return;
+
+        hp -= 1;
+        LifeCount();
+        
+        if (hp <= 0){
+            isDead = true;
+            moveInput = 0f;
+
+            anim.SetBool("isRun", false);
+            anim.SetTrigger("Die");
+
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+
+            if (gameOverUI != null)
+                gameOverUI.SetActive(true);
+
+            Debug.Log("Player Dead");
+        }
+
+        isDamaged = true;
+        isKnockback = true;
+
+        gameObject.layer = 8;
+        sp.color = new Color(1, 1, 1, 0.4f);
+
+        int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(new Vector2(dirc * 8f, 3f), ForceMode2D.Impulse);
+
+        Invoke("OffKnockback", 0.2f);
+        Invoke("offDamaged", 1.5f);
+    }
+
+    void offDamaged()
+    {
+        isDamaged = false;
+        gameObject.layer = 7;
+        sp.color = new Color(1, 1, 1, 1);
+    }
+
+    void OffKnockback()
+    {
+        isKnockback = false;
     }
 }
