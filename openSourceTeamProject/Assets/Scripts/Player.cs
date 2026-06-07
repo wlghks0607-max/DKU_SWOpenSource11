@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.Timeline;
 
 public class Player : MonoBehaviour
 {
@@ -178,9 +179,32 @@ public class Player : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.tag == "Enemy")
+        if (collision.gameObject.CompareTag("Enemy"))
         {
-          OnDamaged(collision.transform.position);
+            // 위에서 떨어지면서 몬스터를 밟았을 때
+            if (rb.linearVelocity.y < 0 && transform.position.y > collision.transform.position.y + 0.2f)
+            {
+                OnAttack(collision.transform);
+
+                // 밟은 뒤 튕기기
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.AddForce(Vector2.up * 8f, ForceMode2D.Impulse);
+
+                return;
+            }
+
+            // 옆에서 닿으면 플레이어 데미지
+            OnDamaged(collision.transform.position);
+        }
+    }
+
+    void OnAttack(Transform enemy)
+    {
+        Monster enemyMove = enemy.GetComponent<Monster>();
+
+        if (enemyMove != null)
+        {
+            enemyMove.OnDamaged();
         }
     }
 
