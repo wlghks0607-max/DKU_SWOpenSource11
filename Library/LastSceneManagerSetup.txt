@@ -1,0 +1,5 @@
+sceneSetups:
+- path: C:/Users/01027/Documents/GitHub/DKU_SWOpenSource11/openSourceTeamProject/Assets/TestScene.unity
+  isLoaded: 1
+  isActive: 1
+  isSubScene: 0
